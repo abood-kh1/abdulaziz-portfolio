@@ -30,16 +30,17 @@ export default function Hero() {
       />
       <div className="relative mx-auto grid max-w-6xl gap-12 px-5 pt-14 pb-16 md:grid-cols-[1.15fr_0.85fr] md:items-center md:px-8 md:pt-24 md:pb-24">
         <div>
-          <div className="flex items-start gap-4">
-            <div className="hidden h-[72px] w-[72px] shrink-0 overflow-hidden rounded-xl border border-line bg-coal shadow-[0_12px_40px_-20px_rgba(0,0,0,0.8)] sm:block md:h-[84px] md:w-[84px]">
+          <div className="flex items-center gap-5">
+            <div className="h-[88px] w-[88px] shrink-0 overflow-hidden rounded-full border-2 border-cream/15 bg-coal shadow-[0_12px_40px_-20px_rgba(0,0,0,0.8)] md:h-[112px] md:w-[112px] md:border-[3px]">
               <img
                 src={profile}
                 alt="Abdulaziz Al-Khazendar — Backend Developer"
-                width={84}
-                height={84}
+                width={112}
+                height={112}
                 loading="eager"
                 decoding="async"
-                className="h-full w-full object-cover object-top"
+                className="h-full w-full object-cover"
+                style={{ objectPosition: "50% 18%" }}
               />
             </div>
             <div>
@@ -48,23 +49,6 @@ export default function Hero() {
                 <span className="rise-line"><span>Abdulaziz</span></span>
                 <span className="rise-line"><span>Al-Khazendar</span></span>
               </h1>
-            </div>
-          </div>
-          {/* mobile portrait — editorial, not circular AI avatar */}
-          <div className="mt-6 overflow-hidden rounded-2xl border border-line bg-coal sm:hidden">
-            <div className="aspect-[4/3] overflow-hidden bg-[#0b0a09]">
-              <img
-                src={profile}
-                alt="Abdulaziz Al-Khazendar — Backend Developer"
-                width={640}
-                height={480}
-                loading="eager"
-                decoding="async"
-                className="h-full w-full object-cover object-top"
-              />
-            </div>
-            <div className="border-t border-line bg-ink px-4 py-2.5 font-mono text-[11px] tracking-[0.14em] text-dim uppercase">
-              Abdulaziz Al-Khazendar · Backend Developer · aboodkh1313@gmail.com
             </div>
           </div>
           <p className="mt-5 max-w-xl border-l-2 border-accent pl-5 text-[clamp(1.02rem,2vw,1.25rem)] leading-relaxed text-sand">
