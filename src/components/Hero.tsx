@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { LINKS } from "../data/content";
-import profile from "../assets/abdulaziz.jpg";
+import profile from "../assets/Abdulaziaz2.jpg";
 
 const layers = [
   { tag: "CLIENT", detail: "UI · what users see", tone: "text-fog", hint: "Interface — clicks, forms, lists" },
