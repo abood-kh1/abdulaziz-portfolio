@@ -1,0 +1,227 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ink: #100f0c;
+  --color-coal: #171512;
+  --color-panel: #1c1a16;
+  --color-line: #2b2822;
+  --color-cream: #f2efe6;
+  --color-sand: #e6dfcd;
+  --color-fog: #a9a294;
+  --color-dim: #6f6a5e;
+  --color-accent: #e4572e;
+  --color-accent-deep: #b23c1a;
+  --color-moss: #7d8a5f;
+  --color-gold: #c9a227;
+
+  --font-display: "Fraunces", "Georgia", serif;
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-ink);
+  color: var(--color-cream);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: var(--color-accent);
+  color: #fff;
+}
+
+/* thin editorial scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #100f0c;
+}
+::-webkit-scrollbar-thumb {
+  background: #2b2822;
+  border-radius: 8px;
+  border: 2px solid #100f0c;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #e4572e;
+}
+
+/* visible focus for keyboard users */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* skip link */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+  background: var(--color-accent);
+  color: #fff;
+  padding: 0.6rem 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+}
+.skip-link:focus {
+  left: 0.5rem;
+  top: 0.5rem;
+}
+
+/* scroll reveal — works without JS too (default visible, JS adds .will-reveal) */
+.reveal {
+  opacity: 1;
+  transform: none;
+}
+.will-reveal .reveal {
+  opacity: 0;
+  transform: translateY(26px);
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.will-reveal .reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* hero packet travelling down the stack */
+@keyframes packet-travel {
+  0% {
+    top: 6%;
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  88% {
+    opacity: 1;
+  }
+  100% {
+    top: 92%;
+    opacity: 0;
+  }
+}
+.packet-dot {
+  animation: packet-travel 3.2s cubic-bezier(0.45, 0, 0.35, 1) infinite;
+}
+
+@keyframes soft-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.45;
+    transform: scale(0.8);
+  }
+}
+.status-dot {
+  animation: soft-pulse 2s ease-in-out infinite;
+}
+
+@keyframes caret-blink {
+  0%,
+  45% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+.caret {
+  animation: caret-blink 1.1s steps(1) infinite;
+}
+
+/* headline line-mask reveal */
+@keyframes rise-in {
+  from {
+    transform: translateY(110%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+.rise-line {
+  display: block;
+  overflow: hidden;
+}
+.rise-line > span {
+  display: block;
+  animation: rise-in 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.rise-line:nth-child(2) > span {
+  animation-delay: 0.08s;
+}
+.rise-line:nth-child(3) > span {
+  animation-delay: 0.16s;
+}
+
+/* image treatment */
+.shot {
+  background: #0b0a09;
+}
+.shot img {
+  transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.shot:hover img {
+  transform: scale(1.025);
+}
+
+/* editorial rule */
+.rule-label {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+/* underline link sweep */
+.u-sweep {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 0% 1px;
+  background-repeat: no-repeat;
+  background-position: left calc(100% - 1px);
+  transition: background-size 0.35s ease;
+  padding-bottom: 2px;
+}
+.u-sweep:hover {
+  background-size: 100% 1px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .packet-dot,
+  .status-dot,
+  .caret,
+  .rise-line > span {
+    animation: none !important;
+  }
+  .will-reveal .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  .shot img {
+    transition: none !important;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
