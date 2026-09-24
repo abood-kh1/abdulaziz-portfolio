@@ -30,6 +30,69 @@ const TEASERS_EN = [
   "Curious about my work?",
 ];
 
+function renderMessage(text: string, onInternal: () => void) {
+  // match: https://, http://, www., mailto:, /projects/, emails
+  const regex = /(\bhttps?:\/\/[^\s]+|\bwww\.[^\s]+|mailto:[^\s]+|\/projects\/[^\s]+|\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b)/gi;
+  const parts = text.split(regex);
+  return parts.map((part, idx) => {
+    if (!part) return null;
+    // internal project link
+    if (part.startsWith("/projects/")) {
+      // strip trailing punctuation
+      const m = part.match(/^(\/projects\/[^\s,)\].]+)([.,)\]]*)$/);
+      const href = m ? m[1] : part;
+      const trail = m ? m[2] : "";
+      return (
+        <span key={idx}>
+          <Link to={href} onClick={onInternal} className="font-mono text-[12px] text-accent underline decoration-accent/30 underline-offset-2 hover:text-accent-deep break-all">
+            {href}
+          </Link>
+          {trail}
+        </span>
+      );
+    }
+    // external http(s) or www or mailto or email
+    const isHttp = /^https?:\/\//i.test(part);
+    const isWww = /^www\./i.test(part);
+    const isMailto = /^mailto:/i.test(part);
+    const isEmail = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(part);
+    if (isHttp || isWww || isMailto || isEmail) {
+      // strip trailing punctuation like . , ) ]
+      const m = part.match(/^(.+?)([.,)\]]+)$/);
+      let href = part;
+      let display = part;
+      let trail = "";
+      if (m && !part.includes("...")) {
+        // avoid stripping if URL genuinely ends with punctuation inside
+        const candidate = m[1];
+        // only strip if candidate still looks like URL/email
+        if (/^(https?:\/\/|www\.|mailto:)/i.test(candidate) || /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(candidate)) {
+          href = candidate;
+          display = candidate;
+          trail = m[2];
+        }
+      }
+      if (isWww) href = "https://" + href;
+      if (isEmail) href = "mailto:" + href;
+      const isExternal = isHttp || isWww || isEmail || (isMailto && !href.startsWith("/projects"));
+      return (
+        <span key={idx}>
+          <a
+            href={href}
+            target={isExternal ? "_blank" : undefined}
+            rel={isExternal ? "noopener noreferrer" : undefined}
+            className="font-mono text-[12px] text-accent underline decoration-accent/30 underline-offset-2 hover:text-accent-deep break-all"
+          >
+            {display}
+          </a>
+          {trail}
+        </span>
+      );
+    }
+    return <span key={idx}>{part}</span>;
+  });
+}
+
 type Pos = { x: number; y: number } | null;
 
 const STORAGE_POS = "assistant-pos";
@@ -301,21 +364,15 @@ export default function AIAssistant() {
             <button onClick={() => setOpen(false)} aria-label="Close" className="grid h-7 w-7 place-items-center rounded-md text-dim hover:bg-panel hover:text-cream">✕</button>
           </div>
 
-          {/* messages - calmer, editorial */}
+          {/* messages - calmer, editorial with clickable links */}
           <div ref={listRef} className="flex-1 space-y-3 overflow-y-auto bg-coal px-4 py-4">
             {messages.map((m, i) => (
               <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"} gap-2`}>
                 {m.role === "assistant" && (
                   <img src={profileImg} alt="" aria-hidden className="mt-1 h-6 w-6 shrink-0 rounded-full border border-line object-cover opacity-80 hidden sm:block" style={{ objectPosition: "50% 18%" }} />
                 )}
-                <div className={`max-w-[84%] whitespace-pre-wrap px-3.5 py-2.5 text-[13.5px] leading-[1.6] ${m.role === "user" ? "rounded-2xl rounded-br-md bg-cream text-ink" : "rounded-xl rounded-bl-md border border-line/70 bg-ink text-sand/90"}`} style={{ fontFamily: m.role === "assistant" && isAr ? "var(--font-arabic)" : undefined }}>
-                  {m.content.split(/(\/projects\/\w+)/g).map((part, idx) =>
-                    part.startsWith("/projects/") ? (
-                      <Link key={idx} to={part} onClick={() => setOpen(false)} className="font-mono text-[12px] text-accent underline decoration-accent/30 underline-offset-2 hover:text-accent-deep">{part}</Link>
-                    ) : (
-                      <span key={idx}>{part}</span>
-                    )
-                  )}
+                <div className={`max-w-[84%] whitespace-pre-wrap break-words px-3.5 py-2.5 text-[13.5px] leading-[1.6] ${m.role === "user" ? "rounded-2xl rounded-br-md bg-cream text-ink" : "rounded-xl rounded-bl-md border border-line/70 bg-ink text-sand/90"}`} style={{ fontFamily: m.role === "assistant" && isAr ? "var(--font-arabic)" : undefined }}>
+                  {renderMessage(m.content, () => setOpen(false))}
                   {m.role === "assistant" && typingRef.current !== null && i === messages.length - 1 && m.content.length > 0 && m.content.length < 800 && (
                     <span className="caret ms-0.5 inline-block h-3 w-[2px] bg-accent align-middle" aria-hidden />
                   )}
