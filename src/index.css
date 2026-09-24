@@ -22,6 +22,7 @@
 
 html {
   scroll-behavior: smooth;
+  background: var(--color-ink);
 }
 
 /* Light theme overrides - activated via html[data-theme="light"] */
@@ -37,18 +38,18 @@ html[data-theme="light"] {
 }
 
 html[data-theme="light"] body {
-  background: #f7f5ee;
+  background: transparent;
   color: #1a1816;
 }
 
 body {
-  background: var(--color-ink);
+  background: transparent;
   color: var(--color-cream);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   overflow-x: hidden;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition: color 0.3s ease;
 }
 
 /* Arabic font - Cairo (requested as "caream") for RTL */

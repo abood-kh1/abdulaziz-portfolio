@@ -8,6 +8,7 @@ import NotFound from "./pages/NotFound";
 import { ThemeProvider } from "./context/ThemeContext";
 import { LanguageProvider } from "./context/LanguageContext";
 import AIAssistant from "./components/AIAssistant";
+import AnimatedBackground from "./components/AnimatedBackground";
 
 function ScrollManager() {
   const { pathname, hash } = useLocation();
@@ -29,6 +30,7 @@ export default function App() {
     <ThemeProvider>
       <LanguageProvider>
         <BrowserRouter>
+          <AnimatedBackground />
           <a href="#main" className="skip-link">Skip to content</a>
           <ScrollManager />
           <Navbar />
