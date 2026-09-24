@@ -17,6 +17,7 @@
   --font-display: "Fraunces", "Georgia", serif;
   --font-sans: "Inter", system-ui, -apple-system, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --font-arabic: "Cairo", "IBM Plex Sans Arabic", "Noto Sans Arabic", system-ui, sans-serif;
 }
 
 html {
@@ -48,6 +49,20 @@ body {
   text-rendering: optimizeLegibility;
   overflow-x: hidden;
   transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Arabic font - Cairo (requested as "caream") for RTL */
+html[lang="ar"] body {
+  font-family: var(--font-arabic);
+}
+html[lang="ar"] .font-display {
+  font-family: var(--font-arabic) !important;
+}
+html[lang="ar"] h1,
+html[lang="ar"] h2,
+html[lang="ar"] h3 {
+  font-family: var(--font-arabic);
+  letter-spacing: 0 !important;
 }
 
 ::selection {

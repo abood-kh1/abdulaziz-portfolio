@@ -13,9 +13,9 @@ export default function Home() {
   const { lang } = useTranslation();
   useEffect(() => {
     if (lang === "ar") {
-      document.title = "عبدالعزيز الخازندار — مطور Backend";
+      document.title = "عبد العزيز عطيه الخزندار — مطور Backend";
       const meta = document.querySelector('meta[name="description"]');
-      if (meta) meta.setAttribute("content", "عبدالعزيز الخازندار مطور Backend يبني واجهات برمجية موثوقة وتطبيقات ذكية وأنظمة مدفوعة بقواعد البيانات باستخدام ASP.NET Core و .NET وتكامل الذكاء الاصطناعي.");
+      if (meta) meta.setAttribute("content", "عبد العزيز عطيه الخزندار مطور Backend يبني واجهات برمجية موثوقة وتطبيقات ذكية وأنظمة مدفوعة بقواعد البيانات باستخدام ASP.NET Core و .NET وتكامل الذكاء الاصطناعي.");
     } else {
       document.title = "Abdulaziz Al-Khazendar — Backend Developer";
       const meta = document.querySelector('meta[name="description"]');
