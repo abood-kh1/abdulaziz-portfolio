@@ -1,7 +1,7 @@
 import { getSystemPrompt, localRetrieve } from "../data/knowledge";
 import type { Lang } from "../i18n/translations";
 
-const GEMINI_MODEL = "gemini-1.5-flash";
+const GEMINI_MODEL = "gemini-3.1-flash-lite";
 
 export interface ChatMessage {
   role: "user" | "assistant";
@@ -22,9 +22,9 @@ export async function askAssistant(
   const effectiveLang: Lang = detectLang(question, lang);
   const isArEffective = effectiveLang === "ar";
 
-  // Try Gemini if key exists and looks like Gemini key (AIza...)
-  const hasValidKey = apiKey && apiKey.startsWith("AIza") && apiKey.length > 20;
-  if (hasValidKey) {
+  // Try Gemini if key exists (AQ... also valid for some Google Cloud keys)
+  const hasKey = !!apiKey && apiKey.length > 20;
+  if (hasKey) {
     try {
       const system = getSystemPrompt(effectiveLang);
       // If history empty, we already sent question in system block; otherwise append
@@ -42,7 +42,7 @@ export async function askAssistant(
       };
 
       const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`,
+        `https://generativelanguage.googleapis.com/v1/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -89,15 +89,6 @@ export async function askAssistant(
     return isArEffective
       ? `أهلاً! أنا مساعد عبد العزيز عطيه الخزندار. أقدر أجاوبك عن مشاريعه (وصال، SiteAware، NCRP، BackendInterviewPass)، مهاراته في Backend و .NET و AI، خدماته وطرق التواصل. اسألني مثلاً: "ما هو مشروع وصال؟" أو "كيف أتواصل معك؟"`
       : `Hi! I'm Abdulaziz's assistant. I can answer about his projects (Wesal, SiteAware, NCRP, BackendInterviewPass), Backend/.NET/AI skills, services and contact. Try: "What is Wesal?" or "How can I contact you?"`;
-  }
-  // If not found good match, localRetrieve already returns a helpful not-found message
-  // Don't prepend "local mode" banner when Gemini key is invalid — just return retrieved
-  if (hasValidKey === false && apiKey) {
-    // key exists but invalid format (like AQ...), explain
-    const hint = isArEffective
-      ? " (ملاحظة: مفتاح Gemini الحالي بصيغة غير صحيحة — يجب أن يبدأ بـ AIza... من Google AI Studio. أجيب الآن من المعرفة المحلية)\n\n"
-      : " (note: current Gemini key format is invalid — should start with AIza... from Google AI Studio. Answering from local knowledge)\n\n";
-    return hint + retrieved;
   }
   return retrieved;
 }
