@@ -18,24 +18,36 @@ const SUGGESTIONS_EN = [
   "Tell me about SiteAware",
 ];
 
-const FOLLOW_AR = ["بدك تستفسر أكثر؟", "أنا هنا لمساعدتك 🙌", "شو كمان بتحب تعرف؟"];
-const FOLLOW_EN = ["Want to ask more?", "I'm here to help 🙌", "What else would you like to know?"];
+const TEASERS_AR = [
+  "أنا هنا لمساعدتك 🙌",
+  "بدك تستفسر أكثر؟",
+  "شو بتحب تعرف عن شغلي؟",
+];
+
+const TEASERS_EN = [
+  "I'm here to help 🙌",
+  "Want to ask something?",
+  "Curious about my work?",
+];
 
 export default function AIAssistant() {
   const { lang } = useLanguage();
   const isAr = lang === "ar";
   const suggestions = isAr ? SUGGESTIONS_AR : SUGGESTIONS_EN;
-  const followUps = isAr ? FOLLOW_AR : FOLLOW_EN;
+  const teasers = isAr ? TEASERS_AR : TEASERS_EN;
 
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [teaserIdx, setTeaserIdx] = useState(0);
+  const [showTeaser, setShowTeaser] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>(() => {
     const initial: ChatMessage = {
       role: "assistant",
       content: isAr
-        ? "مرحباً! أنا مساعد عبد العزيز عطيه الخزندار 🤖\nأنا هنا لمساعدتك — اسألني عن مشاريعه، مهاراته، خدماته أو طرق التواصل، وراح أجاوبك فوراً من ملفه. بدك تستفسر أكثر؟"
-        : "Hi! I'm Abdulaziz's assistant 🤖\nI'm here to help — ask me about his projects, skills, services or contact and I'll answer instantly from his profile. Want to ask more?",
+        ? "مرحباً! أنا مساعد عبد العزيز عطيه الخزندار 🤖\nأنا هنا لمساعدتك — اسألني عن مشاريعه، مهاراته، خدماته أو طرق التواصل."
+        : "Hi! I'm Abdulaziz's assistant 🤖\nI'm here to help — ask me about his projects, skills, services or contact.",
     };
     return [initial];
   });
@@ -49,13 +61,43 @@ export default function AIAssistant() {
         return [{
           role: "assistant",
           content: isAr
-            ? "مرحباً! أنا مساعد عبد العزيز عطيه الخزندار 🤖\nأنا هنا لمساعدتك — اسألني عن مشاريعه، مهاراته، خدماته أو طرق التواصل، وراح أجاوبك فوراً من ملفه. بدك تستفسر أكثر؟"
-            : "Hi! I'm Abdulaziz's assistant 🤖\nI'm here to help — ask me about his projects, skills, services or contact and I'll answer instantly from his profile. Want to ask more?",
+            ? "مرحباً! أنا مساعد عبد العزيز عطيه الخزندار 🤖\nأنا هنا لمساعدتك — اسألني عن مشاريعه، مهاراته، خدماته أو طرق التواصل."
+            : "Hi! I'm Abdulaziz's assistant 🤖\nI'm here to help — ask me about his projects, skills, services or contact.",
         }];
       }
       return prev;
     });
   }, [isAr]);
+
+  // external teaser bubble lifecycle - attention grabber outside chat
+  useEffect(() => {
+    if (open || dismissed) {
+      setShowTeaser(false);
+      return;
+    }
+    const t1 = window.setTimeout(() => setShowTeaser(true), 2500);
+    const interval = window.setInterval(() => {
+      setTeaserIdx(i => (i + 1) % teasers.length);
+    }, 3800);
+    const hide = window.setTimeout(() => setShowTeaser(false), 12000);
+    // re-show later
+    const reshow = window.setTimeout(() => {
+      if (!open && !dismissed) setShowTeaser(true);
+    }, 16000);
+    return () => {
+      clearTimeout(t1);
+      clearInterval(interval);
+      clearTimeout(hide);
+      clearTimeout(reshow);
+    };
+  }, [open, dismissed, teasers.length]);
+
+  // cycle teaser text while visible
+  useEffect(() => {
+    if (!showTeaser || open) return;
+    const id = window.setInterval(() => setTeaserIdx(i => (i + 1) % teasers.length), 3000);
+    return () => clearInterval(id);
+  }, [showTeaser, open, teasers.length]);
 
   useEffect(() => {
     if (open) {
@@ -73,14 +115,11 @@ export default function AIAssistant() {
     setLoading(true);
     try {
       const answer = await askAssistant(q, lang, nextHistory as ChatMessage[]);
-      // append friendly follow-up if answer doesn't already contain it
-      const hasFollow = answer.includes("بدك تستفسر") || answer.includes("Want to ask");
-      const finalAnswer = hasFollow ? answer : answer + (isAr ? "\n\nبدك تستفسر أكثر؟ أنا هنا لمساعدتك 🙌" : "\n\nWant to ask more? I'm here to help 🙌");
-      setMessages([...nextHistory, { role: "assistant", content: finalAnswer }]);
+      setMessages([...nextHistory, { role: "assistant", content: answer }]);
     } catch {
       setMessages([...nextHistory, {
         role: "assistant",
-        content: isAr ? "عذراً، حدث خطأ. جرّب مرة أخرى أو تواصل عبر aboodkh1313@gmail.com — أنا هنا لمساعدتك!" : "Sorry, something went wrong. Try again or contact via aboodkh1313@gmail.com — I'm here to help!",
+        content: isAr ? "عذراً، حدث خطأ. جرّب مرة أخرى أو تواصل عبر aboodkh1313@gmail.com" : "Sorry, something went wrong. Try again or contact via aboodkh1313@gmail.com",
       }]);
     } finally {
       setLoading(false);
@@ -89,9 +128,31 @@ export default function AIAssistant() {
 
   return (
     <>
-      {/* Floating button - now with profile image */}
+      {/* External attention bubble - outside chat, not clickable inside */}
+      {!open && showTeaser && (
+        <div
+          className="assistant-teaser fixed bottom-24 z-[60] flex max-w-[260px] items-center gap-3 rounded-2xl border border-line bg-cream px-4 py-3 shadow-[0_12px_40px_rgba(0,0,0,0.18)]"
+          style={{ insetInlineEnd: "1.5rem" } as React.CSSProperties}
+        >
+          <img src={profileImg} alt="" aria-hidden className="h-8 w-8 shrink-0 rounded-full border border-line object-cover" style={{ objectPosition: "50% 18%" }} />
+          <p className="flex-1 text-sm font-medium leading-snug text-ink" style={{ fontFamily: isAr ? "var(--font-arabic)" : undefined }}>
+            {teasers[teaserIdx]}
+          </p>
+          <button
+            onClick={() => setDismissed(true)}
+            aria-label="Dismiss"
+            className="grid h-6 w-6 shrink-0 place-items-center rounded-full text-dim hover:bg-ink/10 hover:text-ink"
+          >
+            ✕
+          </button>
+          {/* tail */}
+          <span className="absolute -bottom-1.5 h-3 w-3 rotate-45 border-b border-e border-line bg-cream" style={{ insetInlineEnd: "1.8rem" } as React.CSSProperties} aria-hidden />
+        </div>
+      )}
+
+      {/* Floating button with profile image */}
       <button
-        onClick={() => setOpen(v => !v)}
+        onClick={() => { setOpen(v => !v); if (!open) setShowTeaser(false); }}
         aria-label={open ? (isAr ? "إغلاق المساعد" : "Close assistant") : (isAr ? "فتح المساعد" : "Open assistant")}
         className="assistant-btn fixed bottom-6 end-6 z-[60] grid h-14 w-14 place-items-center rounded-full border-2 border-cream/20 bg-coal shadow-[0_8px_30px_rgba(0,0,0,0.3)] transition-all hover:scale-[1.05] hover:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 overflow-hidden"
         style={{ insetInlineEnd: "1.5rem" } as React.CSSProperties}
@@ -148,23 +209,9 @@ export default function AIAssistant() {
                 <div className="rounded-2xl border border-line bg-panel px-3.5 py-2.5 font-mono text-xs text-fog">▌ {isAr ? "يكتب..." : "typing..."}</div>
               </div>
             )}
-            {/* follow-up quick chips after last assistant message */}
-            {!loading && messages.length > 1 && messages[messages.length-1].role === "assistant" && (
-              <div className="flex flex-wrap gap-1.5 ps-9">
-                {followUps.map(f => (
-                  <button
-                    key={f}
-                    onClick={() => send(f === followUps[0] ? (isAr ? "بدي أستفسر أكثر" : "Tell me more") : f)}
-                    className="rounded-full border border-accent/30 bg-accent/10 px-3 py-1 font-mono text-[11px] text-accent hover:bg-accent hover:text-white"
-                  >
-                    {f}
-                  </button>
-                ))}
-              </div>
-            )}
           </div>
 
-          {/* suggestions */}
+          {/* suggestions inside chat (project-related) */}
           <div className="flex gap-1.5 overflow-x-auto border-t border-line bg-coal px-3 py-2">
             {suggestions.map(s => (
               <button
@@ -210,7 +257,9 @@ export default function AIAssistant() {
 
       <style>{`
         .assistant-btn { inset-inline-end: 1.5rem; inset-inline-start: auto; }
+        .assistant-teaser { inset-inline-end: 1.5rem; inset-inline-start: auto; }
         html[dir="rtl"] .assistant-btn { inset-inline-start: 1.5rem; inset-inline-end: auto; }
+        html[dir="rtl"] .assistant-teaser { inset-inline-start: 1.5rem; inset-inline-end: auto; }
       `}</style>
     </>
   );
