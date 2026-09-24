@@ -7,6 +7,7 @@ import ProjectDetail from "./pages/ProjectDetail";
 import NotFound from "./pages/NotFound";
 import { ThemeProvider } from "./context/ThemeContext";
 import { LanguageProvider } from "./context/LanguageContext";
+import AIAssistant from "./components/AIAssistant";
 
 function ScrollManager() {
   const { pathname, hash } = useLocation();
@@ -37,6 +38,7 @@ export default function App() {
             <Route path="*" element={<NotFound />} />
           </Routes>
           <Footer />
+          <AIAssistant />
         </BrowserRouter>
       </LanguageProvider>
     </ThemeProvider>
