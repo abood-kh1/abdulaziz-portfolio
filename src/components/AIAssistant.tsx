@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "../context/LanguageContext";
 import { askAssistant, type ChatMessage } from "../services/assistant";
+import profileImg from "../assets/Abdulaziaz2.jpg";
 
 const SUGGESTIONS_AR = [
   "ما هو مشروع وصال؟",
@@ -17,10 +18,14 @@ const SUGGESTIONS_EN = [
   "Tell me about SiteAware",
 ];
 
+const FOLLOW_AR = ["بدك تستفسر أكثر؟", "أنا هنا لمساعدتك 🙌", "شو كمان بتحب تعرف؟"];
+const FOLLOW_EN = ["Want to ask more?", "I'm here to help 🙌", "What else would you like to know?"];
+
 export default function AIAssistant() {
   const { lang } = useLanguage();
   const isAr = lang === "ar";
   const suggestions = isAr ? SUGGESTIONS_AR : SUGGESTIONS_EN;
+  const followUps = isAr ? FOLLOW_AR : FOLLOW_EN;
 
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
@@ -29,8 +34,8 @@ export default function AIAssistant() {
     const initial: ChatMessage = {
       role: "assistant",
       content: isAr
-        ? "مرحباً! أنا مساعد عبد العزيز عطيه الخزندار 🤖\nأسألني عن مشاريعه، مهاراته، خدماته أو طرق التواصل — أجيب فوراً من ملفه."
-        : "Hi! I'm Abdulaziz's assistant 🤖\nAsk me about his projects, skills, services or contact — I answer instantly from his profile.",
+        ? "مرحباً! أنا مساعد عبد العزيز عطيه الخزندار 🤖\nأنا هنا لمساعدتك — اسألني عن مشاريعه، مهاراته، خدماته أو طرق التواصل، وراح أجاوبك فوراً من ملفه. بدك تستفسر أكثر؟"
+        : "Hi! I'm Abdulaziz's assistant 🤖\nI'm here to help — ask me about his projects, skills, services or contact and I'll answer instantly from his profile. Want to ask more?",
     };
     return [initial];
   });
@@ -38,15 +43,14 @@ export default function AIAssistant() {
   const listRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // update welcome when lang changes (only if empty)
   useEffect(() => {
     setMessages(prev => {
       if (prev.length === 1) {
         return [{
           role: "assistant",
           content: isAr
-            ? "مرحباً! أنا مساعد عبد العزيز عطيه الخزندار 🤖\nأسألني عن مشاريعه، مهاراته، خدماته أو طرق التواصل — أجيب فوراً من ملفه."
-            : "Hi! I'm Abdulaziz's assistant 🤖\nAsk me about his projects, skills, services or contact — I answer instantly from his profile.",
+            ? "مرحباً! أنا مساعد عبد العزيز عطيه الخزندار 🤖\nأنا هنا لمساعدتك — اسألني عن مشاريعه، مهاراته، خدماته أو طرق التواصل، وراح أجاوبك فوراً من ملفه. بدك تستفسر أكثر؟"
+            : "Hi! I'm Abdulaziz's assistant 🤖\nI'm here to help — ask me about his projects, skills, services or contact and I'll answer instantly from his profile. Want to ask more?",
         }];
       }
       return prev;
@@ -69,11 +73,14 @@ export default function AIAssistant() {
     setLoading(true);
     try {
       const answer = await askAssistant(q, lang, nextHistory as ChatMessage[]);
-      setMessages([...nextHistory, { role: "assistant", content: answer }]);
+      // append friendly follow-up if answer doesn't already contain it
+      const hasFollow = answer.includes("بدك تستفسر") || answer.includes("Want to ask");
+      const finalAnswer = hasFollow ? answer : answer + (isAr ? "\n\nبدك تستفسر أكثر؟ أنا هنا لمساعدتك 🙌" : "\n\nWant to ask more? I'm here to help 🙌");
+      setMessages([...nextHistory, { role: "assistant", content: finalAnswer }]);
     } catch {
       setMessages([...nextHistory, {
         role: "assistant",
-        content: isAr ? "عذراً، حدث خطأ. جرّب مرة أخرى أو تواصل عبر aboodkh1313@gmail.com" : "Sorry, something went wrong. Try again or contact via aboodkh1313@gmail.com",
+        content: isAr ? "عذراً، حدث خطأ. جرّب مرة أخرى أو تواصل عبر aboodkh1313@gmail.com — أنا هنا لمساعدتك!" : "Sorry, something went wrong. Try again or contact via aboodkh1313@gmail.com — I'm here to help!",
       }]);
     } finally {
       setLoading(false);
@@ -82,14 +89,18 @@ export default function AIAssistant() {
 
   return (
     <>
-      {/* Floating button */}
+      {/* Floating button - now with profile image */}
       <button
         onClick={() => setOpen(v => !v)}
         aria-label={open ? (isAr ? "إغلاق المساعد" : "Close assistant") : (isAr ? "فتح المساعد" : "Open assistant")}
-        className="assistant-btn fixed bottom-6 end-6 z-[60] grid h-14 w-14 place-items-center rounded-full bg-accent text-white shadow-[0_8px_30px_rgba(0,0,0,0.3)] transition-all hover:scale-[1.05] hover:bg-accent-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+        className="assistant-btn fixed bottom-6 end-6 z-[60] grid h-14 w-14 place-items-center rounded-full border-2 border-cream/20 bg-coal shadow-[0_8px_30px_rgba(0,0,0,0.3)] transition-all hover:scale-[1.05] hover:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 overflow-hidden"
         style={{ insetInlineEnd: "1.5rem" } as React.CSSProperties}
       >
-        <span className="text-xl" aria-hidden>{open ? "✕" : "✦"}</span>
+        {open ? (
+          <span className="grid h-full w-full place-items-center bg-accent text-xl text-white">✕</span>
+        ) : (
+          <img src={profileImg} alt="Abdulaziz" className="h-full w-full object-cover" style={{ objectPosition: "50% 18%" }} />
+        )}
       </button>
 
       {open && (
@@ -99,14 +110,14 @@ export default function AIAssistant() {
           className="fixed bottom-24 end-6 z-[60] flex max-h-[min(70vh,520px)] w-[min(92vw,380px)] flex-col overflow-hidden rounded-2xl border border-line bg-coal shadow-[0_24px_60px_rgba(0,0,0,0.4)]"
           style={{ insetInlineEnd: "1.5rem" } as React.CSSProperties}
         >
-          {/* header */}
+          {/* header with profile image */}
           <div className="flex items-center justify-between border-b border-line bg-ink px-4 py-3">
             <div className="flex items-center gap-2.5">
-              <span className="grid h-8 w-8 place-items-center rounded-full bg-accent font-mono text-xs font-bold text-white">AI</span>
+              <img src={profileImg} alt="Abdulaziz" className="h-9 w-9 rounded-full border border-line object-cover" style={{ objectPosition: "50% 18%" }} />
               <div>
                 <p className="text-sm font-semibold leading-none text-cream">{isAr ? "مساعد عبد العزيز" : "Abdulaziz Assistant"}</p>
                 <p className="mt-1 flex items-center gap-1.5 font-mono text-[10px] tracking-wider text-dim uppercase">
-                  <span className="status-dot h-1.5 w-1.5 rounded-full bg-[#7bc47f]" /> {isAr ? "مُغذّى بملفي الكامل" : "Trained on my profile"}
+                  <span className="status-dot h-1.5 w-1.5 rounded-full bg-[#7bc47f]" /> {isAr ? "أنا هنا لمساعدتك" : "I'm here to help"}
                 </p>
               </div>
             </div>
@@ -116,9 +127,11 @@ export default function AIAssistant() {
           {/* messages */}
           <div ref={listRef} className="flex-1 space-y-3 overflow-y-auto bg-coal p-4">
             {messages.map((m, i) => (
-              <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
-                <div className={`max-w-[85%] whitespace-pre-wrap rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${m.role === "user" ? "bg-accent text-white rounded-br-sm" : "border border-line bg-panel text-sand rounded-bl-sm"}`}>
-                  {/* auto-link case study slugs */}
+              <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"} gap-2`}>
+                {m.role === "assistant" && (
+                  <img src={profileImg} alt="" aria-hidden className="mt-1 h-7 w-7 shrink-0 rounded-full border border-line object-cover hidden sm:block" style={{ objectPosition: "50% 18%" }} />
+                )}
+                <div className={`max-w-[82%] whitespace-pre-wrap rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${m.role === "user" ? "bg-accent text-white rounded-br-sm" : "border border-line bg-panel text-sand rounded-bl-sm"}`}>
                   {m.content.split(/(\/projects\/\w+)/g).map((part, idx) =>
                     part.startsWith("/projects/") ? (
                       <Link key={idx} to={part} onClick={() => setOpen(false)} className="font-mono text-accent underline hover:text-accent-deep">{part}</Link>
@@ -130,8 +143,23 @@ export default function AIAssistant() {
               </div>
             ))}
             {loading && (
-              <div className="flex justify-start">
+              <div className="flex justify-start gap-2">
+                <img src={profileImg} alt="" aria-hidden className="mt-1 h-7 w-7 shrink-0 rounded-full border border-line object-cover hidden sm:block" style={{ objectPosition: "50% 18%" }} />
                 <div className="rounded-2xl border border-line bg-panel px-3.5 py-2.5 font-mono text-xs text-fog">▌ {isAr ? "يكتب..." : "typing..."}</div>
+              </div>
+            )}
+            {/* follow-up quick chips after last assistant message */}
+            {!loading && messages.length > 1 && messages[messages.length-1].role === "assistant" && (
+              <div className="flex flex-wrap gap-1.5 ps-9">
+                {followUps.map(f => (
+                  <button
+                    key={f}
+                    onClick={() => send(f === followUps[0] ? (isAr ? "بدي أستفسر أكثر" : "Tell me more") : f)}
+                    className="rounded-full border border-accent/30 bg-accent/10 px-3 py-1 font-mono text-[11px] text-accent hover:bg-accent hover:text-white"
+                  >
+                    {f}
+                  </button>
+                ))}
               </div>
             )}
           </div>
