@@ -175,7 +175,7 @@ export default function AIAssistant() {
           <p className="border-t border-line bg-coal px-3 py-2 text-center font-mono text-[10px] tracking-wider text-dim">
             {isAr ? "مُغذّى بملف عبد العزيز • يجيب فقط من معرفتي" : "Grounded on Abdulaziz's profile • answers only from my knowledge"}
             {" · "}
-            <span className="text-fog">{import.meta.env.VITE_GEMINI_API_KEY ? (isAr ? "Gemini متصل" : "Gemini connected") : (isAr ? "وضع محلي" : "local mode")}</span>
+            <span className="text-fog">{import.meta.env.VITE_GEMINI_API_KEY && (import.meta.env.VITE_GEMINI_API_KEY as string).startsWith("AIza") ? (isAr ? "Gemini متصل" : "Gemini connected") : (isAr ? "وضع محلي" : "local mode")}</span>
           </p>
         </div>
       )}
