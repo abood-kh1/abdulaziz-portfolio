@@ -23,6 +23,23 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Light theme overrides - activated via html[data-theme="light"] */
+html[data-theme="light"] {
+  --color-ink: #f7f5ee;
+  --color-coal: #ffffff;
+  --color-panel: #f0ece3;
+  --color-line: #ddd6c5;
+  --color-cream: #1a1816;
+  --color-sand: #3d3932;
+  --color-fog: #6b665c;
+  --color-dim: #9a958a;
+}
+
+html[data-theme="light"] body {
+  background: #f7f5ee;
+  color: #1a1816;
+}
+
 body {
   background: var(--color-ink);
   color: var(--color-cream);
@@ -30,6 +47,7 @@ body {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 ::selection {
@@ -42,15 +60,23 @@ body {
   width: 10px;
 }
 ::-webkit-scrollbar-track {
-  background: #100f0c;
+  background: var(--color-ink);
 }
 ::-webkit-scrollbar-thumb {
-  background: #2b2822;
+  background: var(--color-line);
   border-radius: 8px;
-  border: 2px solid #100f0c;
+  border: 2px solid var(--color-ink);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #e4572e;
+  background: var(--color-accent);
+}
+
+html[data-theme="light"] ::-webkit-scrollbar-track {
+  background: #f7f5ee;
+}
+html[data-theme="light"] ::-webkit-scrollbar-thumb {
+  background: #ddd6c5;
+  border-color: #f7f5ee;
 }
 
 /* visible focus for keyboard users */
@@ -171,6 +197,41 @@ body {
 /* image treatment */
 .shot {
   background: #0b0a09;
+}
+html[data-theme="light"] .shot {
+  background: #ece8dc;
+}
+html[data-theme="light"] .bg-\[\#0c0b09\] {
+  background-color: #ece8dc !important;
+}
+html[data-theme="light"] .bg-\[\#0b0a09\] {
+  background-color: #f7f5ee !important;
+}
+html[data-theme="light"] .bg-\[\#0d1420\] {
+  background-color: #eef2f9 !important;
+}
+html[data-theme="light"] .border-\[\#2b3a55\] {
+  border-color: #cbd6ea !important;
+}
+/* fix hardcoded border-line in light */
+html[data-theme="light"] .border-line {
+  border-color: var(--color-line);
+}
+/* Light mode fix for SiteAware card (dark-blue variant) */
+html[data-theme="light"] .bg-\[\#0d1420\] .text-white {
+  color: #0f172a !important;
+}
+html[data-theme="light"] .bg-\[\#0d1420\] .text-\[\#b9c4d6\] {
+  color: #334155 !important;
+}
+html[data-theme="light"] .bg-\[\#0d1420\] .text-\[\#cdd7e8\] {
+  color: #334155 !important;
+}
+html[data-theme="light"] .bg-\[\#0d1420\] .text-\[\#7ea2f8\] {
+  color: #2563eb !important;
+}
+html[data-theme="light"] .bg-\[\#0d1420\] .border-\[\#2b3a55\] {
+  border-color: #cbd6ea !important;
 }
 .shot img {
   transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);

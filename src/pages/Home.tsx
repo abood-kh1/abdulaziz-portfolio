@@ -7,17 +7,25 @@ import OtherProjects from "../components/OtherProjects";
 import Skills from "../components/Skills";
 import Journey from "../components/Journey";
 import Contact from "../components/Contact";
+import { useTranslation } from "../context/LanguageContext";
 
 export default function Home() {
+  const { lang } = useTranslation();
   useEffect(() => {
-    document.title = "Abdulaziz Al-Khazendar — Backend Developer";
-    const meta = document.querySelector('meta[name="description"]');
-    if (meta)
-      meta.setAttribute(
-        "content",
-        "Abdulaziz Al-Khazendar is a backend developer building reliable APIs, intelligent applications, and database-driven systems with ASP.NET Core, .NET, and AI integration."
-      );
-  }, []);
+    if (lang === "ar") {
+      document.title = "عبدالعزيز الخازندار — مطور Backend";
+      const meta = document.querySelector('meta[name="description"]');
+      if (meta) meta.setAttribute("content", "عبدالعزيز الخازندار مطور Backend يبني واجهات برمجية موثوقة وتطبيقات ذكية وأنظمة مدفوعة بقواعد البيانات باستخدام ASP.NET Core و .NET وتكامل الذكاء الاصطناعي.");
+    } else {
+      document.title = "Abdulaziz Al-Khazendar — Backend Developer";
+      const meta = document.querySelector('meta[name="description"]');
+      if (meta)
+        meta.setAttribute(
+          "content",
+          "Abdulaziz Al-Khazendar is a backend developer building reliable APIs, intelligent applications, and database-driven systems with ASP.NET Core, .NET, and AI integration."
+        );
+    }
+  }, [lang]);
 
   return (
     <main id="main">

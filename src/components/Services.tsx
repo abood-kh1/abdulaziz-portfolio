@@ -1,114 +1,30 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import Reveal from "./Reveal";
-
-interface Service {
-  id: string;
-  title: string;
-  short: string;
-  detail: string;
-  tech: string[];
-  deliver: string[];
-  projects: { name: string; slug: string }[];
-}
-
-const SERVICES: Service[] = [
-  {
-    id: "backend",
-    title: "Backend Development",
-    short: "Reliable & maintainable systems",
-    detail: "Build backend systems that stay correct under real load — versioned APIs, honest domain models, and migrations you can trust.",
-    tech: ["ASP.NET Core", ".NET", "C#", "REST APIs", "EF Core", "SQL"],
-    deliver: ["Domain modelling", "Versioned REST APIs", "Migrations & seeds", "Validation & error handling"],
-    projects: [
-      { name: "Wesal", slug: "wesal" },
-      { name: "BackendInterviewPass", slug: "backendinterviewpass" },
-    ],
-  },
-  {
-    id: "api",
-    title: "API Development",
-    short: "Contracts before screens",
-    detail: "Design RESTful APIs with clear resources, DTO boundaries, auth guards, and Swagger so clients integrate without guessing.",
-    tech: ["RESTful APIs", "Auth APIs", "Business logic", "Third-party integrations", "Swagger / OpenAPI"],
-    deliver: ["Resource design", "DTO + AutoMapper", "Integration layer", "Documented endpoints"],
-    projects: [
-      { name: "Wesal", slug: "wesal" },
-      { name: "BackendInterviewPass", slug: "backendinterviewpass" },
-    ],
-  },
-  {
-    id: "ai",
-    title: "AI-Powered Applications",
-    short: "Intelligence grounded in data",
-    detail: "Integrate AI where it actually helps — assistants that read live data, search that cites sources, and agents that orchestrate tools.",
-    tech: ["Gemini", "AI Agents", "MCP", "NLP", "RAG", "Knowledge retrieval"],
-    deliver: ["AI assistants", "Grounded search", "Tool orchestration", "Cited answers"],
-    projects: [
-      { name: "Wesal — مبروك", slug: "wesal" },
-      { name: "SiteAware", slug: "siteaware" },
-    ],
-  },
-  {
-    id: "auth",
-    title: "Authentication & Authorization",
-    short: "Secure by default",
-    detail: "Implement JWT, auth flows and role-based access so every endpoint knows who is calling and what they can do.",
-    tech: ["JWT", "Authentication", "Authorization", "RBAC", "Role policies"],
-    deliver: ["JWT bearer auth", "Role & policy guards", "Owner/admin separation", "Token lifecycle"],
-    projects: [
-      { name: "Wesal", slug: "wesal" },
-      { name: "BackendInterviewPass", slug: "backendinterviewpass" },
-    ],
-  },
-  {
-    id: "data",
-    title: "Database & Backend Architecture",
-    short: "Data as the source of truth",
-    detail: "Model relational data with EF Core on SQL Server, PostgreSQL or SQLite — ledgers, availability and coverage you can audit.",
-    tech: ["EF Core", "SQL Server", "PostgreSQL", "SQLite", "Relational design"],
-    deliver: ["Schema design", "Invariants & constraints", "Query optimization", "Ledger states"],
-    projects: [
-      { name: "NCRP — ledger & coverage", slug: "ncrp" },
-      { name: "Wesal — availability", slug: "wesal" },
-    ],
-  },
-  {
-    id: "android",
-    title: "Android Development",
-    short: "Practical on-device software",
-    detail: "Build focused Android apps with Java/Kotlin — sensor data, GPS and location features without bloat.",
-    tech: ["Java", "Kotlin", "Android SDK", "Sensors", "GPS / Location"],
-    deliver: ["Native UI", "Sensor handling", "Location services", "Offline-friendly builds"],
-    projects: [
-      { name: "Qibla", slug: "" },
-      { name: "Sensor / GPS App", slug: "" },
-    ],
-  },
-];
+import { useTranslation } from "../context/LanguageContext";
 
 export default function Services() {
-  const [active, setActive] = useState<string>("backend");
+  const { t } = useTranslation();
+  const SERVICES = t.services.items;
+  const [active, setActive] = useState<string>(SERVICES[0].id);
   const current = SERVICES.find((s) => s.id === active) ?? SERVICES[0];
 
   return (
     <section id="services" aria-labelledby="services-title" className="scroll-mt-20 border-b border-line bg-[#0c0b09]">
       <div className="mx-auto max-w-6xl px-5 py-16 md:px-8 md:py-24">
         <Reveal>
-          <p className="rule-label text-accent">01.5 — Services</p>
+          <p className="rule-label text-accent">{t.services.label}</p>
           <div className="mt-4 flex flex-wrap items-end justify-between gap-4">
             <h2 id="services-title" className="font-display text-3xl font-medium tracking-tight text-cream md:text-[2.6rem]">
-              What I can help you build.
+              {t.services.title}
             </h2>
             <p className="max-w-xs font-mono text-[11px] leading-relaxed tracking-wider text-dim uppercase">
-              Services → Technologies → Proof in projects
+              {t.services.subtitle}
             </p>
           </div>
         </Reveal>
 
-        {/* interactive layout: list left, detail right */}
         <div className="mt-10 grid gap-6 lg:grid-cols-[0.95fr_1.25fr]">
-          {/* left — service selector */}
           <div className="space-y-px overflow-hidden rounded-xl border border-line bg-line" role="tablist" aria-label="Services">
             {SERVICES.map((s) => {
               const isActive = s.id === active;
@@ -140,7 +56,6 @@ export default function Services() {
             })}
           </div>
 
-          {/* right — dynamic detail */}
           <Reveal key={current.id} className="rounded-2xl border border-line bg-coal p-6 md:p-8">
             <p className="rule-label text-accent">{current.title}</p>
             <h3 className="mt-3 font-display text-2xl font-medium tracking-tight text-cream md:text-3xl">{current.title}</h3>
@@ -148,17 +63,17 @@ export default function Services() {
 
             <div className="mt-6 grid gap-6 sm:grid-cols-2">
               <div>
-                <p className="font-mono text-[11px] tracking-[0.18em] text-dim uppercase">Technologies</p>
+                <p className="font-mono text-[11px] tracking-[0.18em] text-dim uppercase">{t.services.technologies}</p>
                 <ul className="mt-3 flex flex-wrap gap-2">
-                  {current.tech.map((t) => (
-                    <li key={t} className="rounded-md border border-line bg-ink px-3 py-1.5 font-mono text-[11px] tracking-wider text-sand">
-                      {t}
+                  {current.tech.map((tech) => (
+                    <li key={tech} className="rounded-md border border-line bg-ink px-3 py-1.5 font-mono text-[11px] tracking-wider text-sand">
+                      {tech}
                     </li>
                   ))}
                 </ul>
               </div>
               <div>
-                <p className="font-mono text-[11px] tracking-[0.18em] text-dim uppercase">What I deliver</p>
+                <p className="font-mono text-[11px] tracking-[0.18em] text-dim uppercase">{t.services.whatIDeliver}</p>
                 <ul className="mt-3 space-y-2">
                   {current.deliver.map((d) => (
                     <li key={d} className="flex gap-2 text-sm leading-relaxed text-sand">
@@ -170,7 +85,7 @@ export default function Services() {
             </div>
 
             <div className="mt-6 border-t border-line pt-5">
-              <p className="font-mono text-[11px] tracking-[0.18em] text-dim uppercase">Related projects — proof</p>
+              <p className="font-mono text-[11px] tracking-[0.18em] text-dim uppercase">{t.services.relatedProjects}</p>
               <div className="mt-3 flex flex-wrap gap-2">
                 {current.projects.map((p) =>
                   p.slug ? (
@@ -188,23 +103,22 @@ export default function Services() {
 
             <div className="mt-6 flex flex-wrap gap-3">
               <a href="#contact" className="rounded-md bg-accent px-5 py-3 font-mono text-[12px] font-semibold tracking-[0.08em] text-white uppercase hover:bg-accent-deep">
-                Let's Talk →
+                {t.services.letsTalk}
               </a>
               <a href="#projects" className="rounded-md border border-line px-5 py-3 font-mono text-[12px] tracking-[0.08em] text-cream uppercase hover:border-accent hover:text-accent">
-                View projects
+                {t.services.viewProjects}
               </a>
             </div>
           </Reveal>
         </div>
 
-        {/* service → contact CTA */}
         <Reveal delay={120} className="mt-8 rounded-xl border border-accent/20 bg-ink p-6 md:flex md:items-center md:justify-between md:gap-6">
           <div>
-            <p className="font-display text-xl font-medium tracking-tight text-cream">Need a backend system, API, or AI-powered application?</p>
-            <p className="mt-2 font-mono text-sm text-fog">Let&apos;s discuss what you&apos;re building — a short brief beats a long call.</p>
+            <p className="font-display text-xl font-medium tracking-tight text-cream">{t.services.ctaTitle}</p>
+            <p className="mt-2 font-mono text-sm text-fog">{t.services.ctaDesc}</p>
           </div>
           <a href="#contact" className="mt-4 inline-flex rounded-md bg-cream px-6 py-3 font-mono text-[13px] font-semibold tracking-[0.08em] text-ink uppercase hover:bg-accent hover:text-white md:mt-0">
-            Let&apos;s Talk
+            {t.services.ctaBtn}
           </a>
         </Reveal>
       </div>
